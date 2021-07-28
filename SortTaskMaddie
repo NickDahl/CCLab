@@ -1,0 +1,39 @@
+# Sort task - Maddie Bartels
+
+library(readxl)
+
+# Read in the files
+x <- read_excel("Alberta Registry Listing.xlsx")
+y <- read_excel("Alberta Registry Pivot Table .xlsx")
+
+# sort the data in the Alberta Registry Listing into my desired Alberta Registry 
+# Pivot Table?  I'd love to learn the method for this.  No worries if you don't 
+# have time, since I can always do some summations myself.
+
+# Change data types
+x$`Quantification Protocol` <- as.factor(x$`Quantification Protocol`)
+x$Quantity <- as.numeric(x$Quantity)
+
+# Examine
+count <- nlevels(x$`Quantification Protocol`)
+
+result <- data.frame("Protocol" = rep(NA, count),
+                     "ProjectCount" = rep(NA, count),
+                     "Quantity" = rep(NA, count))
+
+# Loop through all of the levels, perform logic in each iteration
+for (i in 1:count) {
+  value <- levels(x$`Quantification Protocol`)[i]
+  subset <- x[x$`Quantification Protocol` == value, ]
+  
+  # Count number of unique project titles (column c)
+  result$ProjectCount[i] <- length(unique(subset$`Project Title`))
+  
+  # Save protocol name
+  result$Protocol[i] <- value
+  
+  # Cumulative quantity
+  result$Quantity[i] <- sum(subset$Quantity)
+}
+
+write.csv(result, "PivotTable.csv", row.names = FALSE)
